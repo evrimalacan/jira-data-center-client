@@ -1,57 +1,54 @@
-import { createClient, assert, runTest } from './utils.js';
+import { describe, it, expect } from 'vitest';
+import { createClient } from './utils';
 
-export async function testIssues(): Promise<void> {
-  console.log('\n📋 Testing Issues API...');
-
+describe('Issues API', () => {
   const client = createClient();
-
   let firstIssueKey: string | undefined;
 
-  await runTest('issues.search', async () => {
+  it('should search issues with JQL (search)', async () => {
     const result = await client.issues.search({
       jql: 'ORDER BY created DESC',
       maxResults: 5,
     });
-    assert(typeof result.total === 'number', 'Should have total count');
-    assert(Array.isArray(result.issues), 'Should have issues array');
+    expect(typeof result.total).toBe('number');
+    expect(Array.isArray(result.issues)).toBe(true);
     if (result.issues.length > 0) {
       firstIssueKey = result.issues[0].key;
-      assert(result.issues[0].key, 'Issue should have a key');
+      expect(result.issues[0].key).toBeTruthy();
     }
   });
 
-  await runTest('issues.searchPost', async () => {
+  it('should search issues with POST (searchPost)', async () => {
     const result = await client.issues.searchPost({
       jql: 'ORDER BY created DESC',
       maxResults: 5,
     });
-    assert(typeof result.total === 'number', 'Should have total count');
-    assert(Array.isArray(result.issues), 'Should have issues array');
+    expect(typeof result.total).toBe('number');
+    expect(Array.isArray(result.issues)).toBe(true);
   });
 
-  await runTest('issues.get', async () => {
+  it('should get a specific issue (get)', async () => {
     if (!firstIssueKey) {
-      // Skip if no issues found
-      console.log('    (skipped - no issues available)');
+      console.log('(skipped - no issues available)');
       return;
     }
     const issue = await client.issues.get({ issueKeyOrId: firstIssueKey });
-    assert(issue.key === firstIssueKey, 'Should return correct issue');
-    assert(issue.fields.summary, 'Issue should have summary');
+    expect(issue.key).toBe(firstIssueKey);
+    expect(issue.fields.summary).toBeTruthy();
   });
 
-  await runTest('issues.count', async () => {
+  it('should count issues (count)', async () => {
     const count = await client.issues.count('ORDER BY created DESC');
-    assert(typeof count === 'number', 'Count should be a number');
-    assert(count >= 0, 'Count should be non-negative');
+    expect(typeof count).toBe('number');
+    expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  await runTest('issues.getTransitions', async () => {
+  it('should get issue transitions (getTransitions)', async () => {
     if (!firstIssueKey) {
-      console.log('    (skipped - no issues available)');
+      console.log('(skipped - no issues available)');
       return;
     }
     const transitions = await client.issues.getTransitions({ issueKeyOrId: firstIssueKey });
-    assert(Array.isArray(transitions.transitions), 'Should have transitions array');
+    expect(Array.isArray(transitions.transitions)).toBe(true);
   });
-}
+});

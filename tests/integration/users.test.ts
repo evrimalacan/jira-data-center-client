@@ -1,28 +1,26 @@
-import { createClient, assert, runTest } from './utils.js';
+import { describe, it, expect } from 'vitest';
+import { createClient } from './utils';
 
-export async function testUsers(): Promise<void> {
-  console.log('\n📋 Testing Users API...');
-
+describe('Users API', () => {
   const client = createClient();
 
-  await runTest('users.getMyself', async () => {
+  it('should get current user (getMyself)', async () => {
     const user = await client.users.getMyself();
-    assert(user.name, 'User should have a name');
-    assert(user.displayName, 'User should have a displayName');
+    expect(user.name).toBeTruthy();
+    expect(user.displayName).toBeTruthy();
   });
 
-  await runTest('users.getUser', async () => {
+  it('should get user by username (getUser)', async () => {
     const myself = await client.users.getMyself();
     const user = await client.users.getUser({ username: myself.name });
-    assert(user.name === myself.name, 'Should return same user');
+    expect(user.name).toBe(myself.name);
   });
 
-  await runTest('users.searchUsers', async () => {
+  it('should search users (searchUsers)', async () => {
     const myself = await client.users.getMyself();
-    // Search for first 3 chars of username
     const searchTerm = myself.name.slice(0, 3);
     const users = await client.users.searchUsers({ username: searchTerm });
-    assert(Array.isArray(users), 'Should return array');
-    assert(users.length > 0, 'Should find at least one user');
+    expect(Array.isArray(users)).toBe(true);
+    expect(users.length).toBeGreaterThan(0);
   });
-}
+});

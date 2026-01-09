@@ -1,47 +1,44 @@
-import { createClient, assert, runTest } from './utils.js';
+import { describe, it, expect } from 'vitest';
+import { createClient } from './utils';
 
-export async function testFields(): Promise<void> {
-  console.log('\n📋 Testing Fields API...');
-
+describe('Fields API', () => {
   const client = createClient();
 
-  await runTest('fields.getAll', async () => {
+  it('should get all fields (getAll)', async () => {
     const fields = await client.fields.getAll();
-    assert(Array.isArray(fields), 'Should return array');
-    assert(fields.length > 0, 'Should have fields');
-    assert(fields[0].id, 'Field should have id');
-    assert(fields[0].name, 'Field should have name');
+    expect(Array.isArray(fields)).toBe(true);
+    expect(fields.length).toBeGreaterThan(0);
+    expect(fields[0].id).toBeTruthy();
+    expect(fields[0].name).toBeTruthy();
   });
 
-  await runTest('fields.getIdByName (summary)', async () => {
+  it('should get field ID by name - summary (getIdByName)', async () => {
     const id = await client.fields.getIdByName('summary');
-    assert(id === 'summary', 'Summary field ID should be "summary"');
+    expect(id).toBe('summary');
   });
 
-  await runTest('fields.getIdByName (Status)', async () => {
+  it('should get field ID by name - Status (getIdByName)', async () => {
     const id = await client.fields.getIdByName('Status');
-    assert(id, 'Should find Status field');
-    // Status field ID varies by Jira instance
+    expect(id).toBeTruthy();
   });
 
-  await runTest('fields.getById', async () => {
+  it('should get field by ID (getById)', async () => {
     const field = await client.fields.getById('summary');
-    assert(field, 'Should find summary field');
-    assert(field?.name.toLowerCase() === 'summary', 'Field name should be Summary');
+    expect(field).toBeTruthy();
+    expect(field?.name.toLowerCase()).toBe('summary');
   });
 
-  await runTest('fields.getCustom', async () => {
+  it('should get custom fields only (getCustom)', async () => {
     const customFields = await client.fields.getCustom();
-    assert(Array.isArray(customFields), 'Should return array');
-    // All should be custom fields
+    expect(Array.isArray(customFields)).toBe(true);
     for (const f of customFields) {
-      assert(f.id.startsWith('customfield_'), 'Should only return custom fields');
+      expect(f.id.startsWith('customfield_')).toBe(true);
     }
   });
 
-  await runTest('fields.search', async () => {
+  it('should search fields (search)', async () => {
     const matches = await client.fields.search('status');
-    assert(Array.isArray(matches), 'Should return array');
-    assert(matches.length > 0, 'Should find status-related fields');
+    expect(Array.isArray(matches)).toBe(true);
+    expect(matches.length).toBeGreaterThan(0);
   });
-}
+});

@@ -22,15 +22,16 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
-    "test": "echo \"No tests specified\" && exit 0",
-    "test:integration": "npx tsx tests/integration/run-all.ts"
+    "test": "vitest run",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "axios": "^1.7.9"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=24.0.0"

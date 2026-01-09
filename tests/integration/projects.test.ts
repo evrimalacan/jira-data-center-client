@@ -1,26 +1,22 @@
-import { createClient, assert, runTest } from './utils.js';
+import { describe, it, expect } from 'vitest';
+import { createClient } from './utils';
 
-export async function testProjects(): Promise<void> {
-  console.log('\n📋 Testing Projects API...');
-
+describe('Projects API', () => {
   const client = createClient();
+  let firstProjectKey: string;
 
-  let firstProjectKey: string | undefined;
-
-  await runTest('projects.getAll', async () => {
+  it('should get all projects (getAll)', async () => {
     const projects = await client.projects.getAll();
-    assert(Array.isArray(projects), 'Should return array');
-    assert(projects.length > 0, 'Should have at least one project');
-    assert(projects[0].key, 'Project should have a key');
+    expect(Array.isArray(projects)).toBe(true);
+    expect(projects.length).toBeGreaterThan(0);
+    expect(projects[0].key).toBeTruthy();
     firstProjectKey = projects[0].key;
   });
 
-  await runTest('projects.get', async () => {
-    if (!firstProjectKey) {
-      throw new Error('No project key available from previous test');
-    }
+  it('should get a specific project (get)', async () => {
+    expect(firstProjectKey).toBeTruthy();
     const project = await client.projects.get({ projectKeyOrId: firstProjectKey });
-    assert(project.key === firstProjectKey, 'Should return correct project');
-    assert(project.name, 'Project should have a name');
+    expect(project.key).toBe(firstProjectKey);
+    expect(project.name).toBeTruthy();
   });
-}
+});

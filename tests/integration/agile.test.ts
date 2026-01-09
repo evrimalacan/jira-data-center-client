@@ -1,62 +1,59 @@
-import { createClient, assert, runTest } from './utils.js';
+import { describe, it, expect } from 'vitest';
+import { createClient } from './utils';
 
-export async function testAgile(): Promise<void> {
-  console.log('\n📋 Testing Agile API...');
-
+describe('Agile API', () => {
   const client = createClient();
-
   let scrumBoardId: number | undefined;
 
-  await runTest('agile.getBoards', async () => {
+  it('should get all boards (getBoards)', async () => {
     const boards = await client.agile.getBoards({ maxResults: 50 });
-    assert(Array.isArray(boards), 'Should return array');
-    console.log(`    Found ${boards.length} boards`);
+    expect(Array.isArray(boards)).toBe(true);
+    console.log(`Found ${boards.length} boards`);
 
-    // Find a scrum board for sprint testing
     const scrumBoard = boards.find((b) => b.type === 'scrum');
     if (scrumBoard) {
       scrumBoardId = scrumBoard.id;
-      console.log(`    Using scrum board: ${scrumBoard.name} (ID: ${scrumBoard.id})`);
+      console.log(`Using scrum board: ${scrumBoard.name} (ID: ${scrumBoard.id})`);
     }
   });
 
-  await runTest('agile.getBoards (filtered by type)', async () => {
+  it('should filter boards by type (getBoards)', async () => {
     const scrumBoards = await client.agile.getBoards({ type: 'scrum', maxResults: 10 });
-    assert(Array.isArray(scrumBoards), 'Should return array');
+    expect(Array.isArray(scrumBoards)).toBe(true);
     for (const board of scrumBoards) {
-      assert(board.type === 'scrum', 'Should only return scrum boards');
+      expect(board.type).toBe('scrum');
     }
   });
 
-  await runTest('agile.getBoard', async () => {
+  it('should get a specific board (getBoard)', async () => {
     if (!scrumBoardId) {
-      console.log('    (skipped - no scrum board available)');
+      console.log('(skipped - no scrum board available)');
       return;
     }
     const board = await client.agile.getBoard(scrumBoardId);
-    assert(board.id === scrumBoardId, 'Should return correct board');
-    assert(board.name, 'Board should have name');
+    expect(board.id).toBe(scrumBoardId);
+    expect(board.name).toBeTruthy();
   });
 
-  await runTest('agile.getSprints', async () => {
+  it('should get sprints for a board (getSprints)', async () => {
     if (!scrumBoardId) {
-      console.log('    (skipped - no scrum board available)');
+      console.log('(skipped - no scrum board available)');
       return;
     }
     const sprints = await client.agile.getSprints({ boardId: scrumBoardId, maxResults: 10 });
-    assert(Array.isArray(sprints), 'Should return array');
-    console.log(`    Found ${sprints.length} sprints`);
+    expect(Array.isArray(sprints)).toBe(true);
+    console.log(`Found ${sprints.length} sprints`);
 
     if (sprints.length > 0) {
-      assert(sprints[0].id, 'Sprint should have id');
-      assert(sprints[0].name, 'Sprint should have name');
-      assert(sprints[0].state, 'Sprint should have state');
+      expect(sprints[0].id).toBeTruthy();
+      expect(sprints[0].name).toBeTruthy();
+      expect(sprints[0].state).toBeTruthy();
     }
   });
 
-  await runTest('agile.getSprints (active only)', async () => {
+  it('should filter sprints by state (getSprints)', async () => {
     if (!scrumBoardId) {
-      console.log('    (skipped - no scrum board available)');
+      console.log('(skipped - no scrum board available)');
       return;
     }
     const activeSprints = await client.agile.getSprints({
@@ -64,9 +61,9 @@ export async function testAgile(): Promise<void> {
       state: 'active',
       maxResults: 10,
     });
-    assert(Array.isArray(activeSprints), 'Should return array');
+    expect(Array.isArray(activeSprints)).toBe(true);
     for (const sprint of activeSprints) {
-      assert(sprint.state === 'active', 'Should only return active sprints');
+      expect(sprint.state).toBe('active');
     }
   });
-}
+});

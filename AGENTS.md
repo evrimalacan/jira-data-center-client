@@ -11,6 +11,7 @@ TypeScript client library for Jira Server/Data Center REST API. ESM-only package
 ```bash
 npm run build           # Compile TypeScript to dist/
 npm run clean           # Remove dist/
+npm test                # Run all tests (Vitest)
 npm run test:integration # Run integration tests against live Jira
 ```
 
@@ -41,8 +42,7 @@ src/
 └── index.ts                # Public exports
 
 tests/
-└── integration/            # Integration tests for all APIs
-    ├── run-all.ts          # Test runner
+└── integration/            # Integration tests (Vitest)
     ├── utils.ts            # Test utilities
     ├── users.test.ts
     ├── projects.test.ts
